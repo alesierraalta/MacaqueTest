@@ -12,6 +12,7 @@ from app.services.fallback import extractive_fallback
 from app.services.redis_service import redis_service
 from app.core.security import verify_api_key
 from app.core.logging import get_logger, log_summarization, log_error
+from app.core.config import settings  # Para usar rate_limit_requests dinámicamente
 
 logger = get_logger(__name__)
 router = APIRouter()
@@ -25,8 +26,8 @@ router = APIRouter()
 )
 async def summarize_text(
     request: SummarizeRequest,
-    api_key: str = Depends(verify_api_key),
-    http_request: Request = None
+    http_request: Request,  # FastAPI inyecta automáticamente el Request
+    api_key: str = Depends(verify_api_key)
 ) -> SummarizeResponse:
     """
     Genera un resumen del texto usando OpenAI con fallback TextRank.
@@ -43,6 +44,7 @@ async def summarize_text(
         HTTPException: Si hay error en el procesamiento
     """
     start_time = time.perf_counter()
+    # Obtener request_id del middleware (siempre disponible gracias a RequestIDMiddleware)
     request_id = getattr(http_request.state, 'request_id', None)
     fallback_used = False
     cached = False
@@ -63,7 +65,7 @@ async def summarize_text(
         if not await redis_service.check_rate_limit(api_key):
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Rate limit excedido. Máximo 100 requests por minuto."
+                detail=f"Rate limit excedido. Máximo {settings.rate_limit_requests} requests por minuto por API key."
             )
         
         # 2. Generar clave de caché
@@ -201,10 +203,17 @@ async def summarize_text(
             endpoint="/v1/summarize"
         )
         
-        # Retornar error HTTP apropiado
+        # Retornar error HTTP apropiado según el tipo de error
         if isinstance(e, HTTPException):
+            # Re-lanzar excepciones HTTP directamente (rate limit, validación, etc.)
             raise e
         else:
+            # Loggear error inesperado y retornar error genérico
+            logger.error(
+                f"Error inesperado en summarize: {type(e).__name__}",
+                extra={'request_id': request_id, 'error': str(e)},
+                exc_info=True
+            )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error interno del servidor durante la summarización"

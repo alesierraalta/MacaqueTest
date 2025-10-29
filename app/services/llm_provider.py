@@ -3,10 +3,8 @@ Proveedor LLM usando OpenAI.
 Implementa integración con OpenAI API con retries y manejo de errores.
 """
 
-import asyncio  # Para operaciones asíncronas
-from typing import Dict, Any, Optional  # Tipos de datos
+from typing import Dict, Any  # Tipos de datos
 from openai import AsyncOpenAI  # Cliente asíncrono de OpenAI
-from openai.types.chat import ChatCompletion  # Tipo de respuesta de chat
 from openai._exceptions import RateLimitError, APIError, APITimeoutError  # Excepciones de OpenAI
 from tenacity import (  # Biblioteca para retries automáticos
     retry, 
@@ -108,13 +106,8 @@ Responde únicamente con el resumen, sin explicaciones adicionales."""
             Timeout: Si se excede el timeout
         """
         try:
-            # Construir mensajes
+            # Construir system prompt según idioma y tono
             system_prompt = self._build_system_prompt(lang, tone)
-            
-            messages = [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": text}
-            ]
             
             logger.info(
                 f"Iniciando llamada a OpenAI con modelo {self.model}",
@@ -130,7 +123,7 @@ Responde únicamente con el resumen, sin explicaciones adicionales."""
             # Llamar a OpenAI API usando responses.create con instructions
             response = await self.client.responses.create(
                 model=self.model,
-                instructions=system_prompt,  # Agregar system prompt como instructions
+                instructions=system_prompt,  # System prompt como instructions
                 input=text
             )
             

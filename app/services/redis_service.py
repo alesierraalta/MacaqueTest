@@ -5,7 +5,6 @@ Implementa graceful degradation si Redis no está disponible.
 
 import hashlib  # Para generar hashes SHA-256 de claves de caché
 import json  # Para serializar/deserializar datos JSON
-import asyncio  # Para operaciones asíncronas
 from typing import Dict, Any, Optional  # Tipos de datos
 import redis.asyncio as redis  # Cliente asíncrono de Redis
 from redis.exceptions import ConnectionError, TimeoutError, RedisError  # Excepciones de Redis

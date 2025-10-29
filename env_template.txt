@@ -1,0 +1,14 @@
+# Configuración temporal para testing
+# Copia este contenido a un archivo .env
+
+API_KEYS_ALLOWED=test-key-123,test-key-456
+OPENAI_API_KEY=sk-your-openai-api-key-here
+OPENAI_MODEL=gpt-5-nano
+SUMMARY_MAX_TOKENS=500
+LANG_DEFAULT=auto
+MAX_TEXT_LENGTH=50000
+REQUEST_TIMEOUT_MS=10000
+LLM_TIMEOUT_MS=8000
+MAX_RETRIES=2
+CORS_ORIGINS=*
+LOG_LEVEL=INFO

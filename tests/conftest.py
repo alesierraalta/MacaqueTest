@@ -3,13 +3,13 @@ Configuración de tests para pytest.
 Define fixtures comunes y configuración de testing.
 """
 
-import pytest
-import asyncio
-from unittest.mock import AsyncMock, MagicMock
-from fastapi.testclient import TestClient
-from httpx import AsyncClient
-from app.main import app
-from app.core.config import settings
+import pytest  # Framework de testing
+import asyncio  # Para operaciones asíncronas en tests
+from unittest.mock import AsyncMock, MagicMock  # Mocks para testing
+from fastapi.testclient import TestClient  # Cliente de testing síncrono
+from httpx import AsyncClient  # Cliente de testing asíncrono
+from app.main import app  # Aplicación FastAPI
+from app.core.config import settings  # Configuración de la aplicación
 
 
 @pytest.fixture(scope="session")

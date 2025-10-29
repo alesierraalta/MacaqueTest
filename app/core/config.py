@@ -3,9 +3,9 @@ Configuración del microservicio usando Pydantic Settings.
 Implementa el patrón 12-factor app para configuración.
 """
 
-from typing import List
-from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List  # Tipo de datos para listas
+from pydantic import Field, field_validator  # Validación de campos Pydantic
+from pydantic_settings import BaseSettings, SettingsConfigDict  # Configuración 12-factor
 
 
 class Settings(BaseSettings):

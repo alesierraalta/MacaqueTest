@@ -1,46 +1,46 @@
-version: '3.8'
+version: '3.8'  # Versión de Docker Compose
 
 services:
-  api:
-    build: .
+  api:  # Servicio principal de la API
+    build: .  # Construir desde Dockerfile local
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Mapear puerto 8000 del host al contenedor
     env_file:
-      - .env
+      - .env  # Cargar variables de entorno desde archivo
     environment:
-      - LOG_LEVEL=INFO
+      - LOG_LEVEL=INFO  # Nivel de logging
     volumes:
-      - ./app:/app/app  # Para desarrollo
-    restart: unless-stopped
-    healthcheck:
+      - ./app:/app/app  # Montar código para desarrollo (hot reload)
+    restart: unless-stopped  # Reiniciar automáticamente si falla
+    healthcheck:  # Verificar salud del servicio
       test: ["CMD", "curl", "-f", "http://localhost:8000/v1/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    depends_on:
+      interval: 30s  # Verificar cada 30 segundos
+      timeout: 10s  # Timeout de 10 segundos
+      retries: 3  # Máximo 3 reintentos
+      start_period: 10s  # Esperar 10 segundos antes de empezar checks
+    depends_on:  # Dependencias del servicio
       redis:
-        condition: service_healthy
+        condition: service_healthy  # Esperar a que Redis esté saludable
     networks:
-      - summarization-network
+      - summarization-network  # Red personalizada
 
-  redis:
-    image: redis:7-alpine
+  redis:  # Servicio de Redis para caché y rate limiting
+    image: redis:7-alpine  # Imagen oficial de Redis 7 Alpine
     ports:
-      - "6379:6379"
+      - "6379:6379"  # Puerto estándar de Redis
     volumes:
-      - redis-data:/data
+      - redis-data:/data  # Persistir datos de Redis
     networks:
-      - summarization-network
-    healthcheck:
+      - summarization-network  # Red personalizada
+    healthcheck:  # Verificar salud de Redis
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
+      interval: 10s  # Verificar cada 10 segundos
+      timeout: 3s  # Timeout de 3 segundos
+      retries: 3  # Máximo 3 reintentos
 
 networks:
-  summarization-network:
-    driver: bridge
+  summarization-network:  # Red personalizada para comunicación entre servicios
+    driver: bridge  # Driver de red bridge
 
 volumes:
-  redis-data:
+  redis-data:  # Volumen persistente para datos de Redis

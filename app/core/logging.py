@@ -3,11 +3,11 @@ Configuración de logging estructurado JSON.
 Proporciona logs estructurados para monitoreo y análisis.
 """
 
-import logging
-import sys
-from datetime import datetime
-from typing import Any, Dict, Optional
-from pythonjsonlogger import jsonlogger
+import logging  # Sistema de logging de Python
+import sys  # Para stdout/stderr
+from datetime import datetime  # Para timestamps
+from typing import Any, Dict, Optional  # Tipos de datos
+from pythonjsonlogger import jsonlogger  # Formatter JSON para logs
 
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):

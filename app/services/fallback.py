@@ -3,12 +3,12 @@ Servicio de fallback usando TextRank para resumen extractivo.
 Implementa resumen extractivo cuando falla el LLM principal.
 """
 
-import nltk
-from typing import Dict, Any, Optional
-from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
-from sumy.summarizers.text_rank import TextRankSummarizer
-from app.core.logging import get_logger
+import nltk  # Procesamiento de lenguaje natural
+from typing import Dict, Any, Optional  # Tipos de datos
+from sumy.parsers.plaintext import PlaintextParser  # Parser de texto plano
+from sumy.nlp.tokenizers import Tokenizer  # Tokenizador de texto
+from sumy.summarizers.text_rank import TextRankSummarizer  # Algoritmo TextRank
+from app.core.logging import get_logger  # Sistema de logging
 
 logger = get_logger(__name__)
 
@@ -18,8 +18,8 @@ class ExtractiveFallback:
     
     def __init__(self):
         """Inicializa el servicio de fallback."""
-        self._download_nltk_resources()
-        self.summarizer = TextRankSummarizer()
+        self._download_nltk_resources()  # Descargar recursos necesarios de NLTK
+        self.summarizer = TextRankSummarizer()  # Inicializar algoritmo TextRank
         
     def _download_nltk_resources(self) -> None:
         """Descarga recursos necesarios de NLTK."""

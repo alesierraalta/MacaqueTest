@@ -3,17 +3,17 @@ Aplicación principal FastAPI del microservicio de summarización.
 Configura la aplicación con todos los componentes necesarios.
 """
 
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from app.core.config import settings
-from app.core.logging import setup_logging, get_logger, log_error
-from app.core.middleware import RequestIDMiddleware, SecurityHeadersMiddleware
-from app.api.v1.endpoints import summarize, health
-from app.models.requests import ErrorResponse
+from contextlib import asynccontextmanager  # Para manejar el ciclo de vida de la app
+from fastapi import FastAPI, Request, HTTPException, status  # Framework web principal
+from fastapi.middleware.cors import CORSMiddleware  # Middleware para CORS
+from fastapi.responses import JSONResponse  # Respuestas JSON estructuradas
+from app.core.config import settings  # Configuración de la aplicación
+from app.core.logging import setup_logging, get_logger, log_error  # Sistema de logging
+from app.core.middleware import RequestIDMiddleware, SecurityHeadersMiddleware  # Middlewares personalizados
+from app.api.v1.endpoints import summarize, health  # Endpoints de la API
+from app.models.requests import ErrorResponse  # Modelos de datos
 
-# Configurar logging
+# Configurar logging estructurado JSON
 setup_logging(settings.log_level)
 logger = get_logger(__name__)
 
@@ -31,38 +31,38 @@ async def lifespan(app: FastAPI):
     logger.info("Cerrando microservicio de summarización")
 
 
-# Crear aplicación FastAPI
+# Crear aplicación FastAPI con configuración completa
 app = FastAPI(
     title="Microservicio de Summarización LLM",
     description="Servicio para generar resúmenes de texto usando OpenAI con fallback extractivo",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-    lifespan=lifespan
+    docs_url="/docs",  # Documentación OpenAPI interactiva
+    redoc_url="/redoc",  # Documentación alternativa
+    lifespan=lifespan  # Manejo del ciclo de vida
 )
 
-# Configurar CORS
+# Configurar CORS para permitir requests desde diferentes orígenes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
+    allow_origins=settings.cors_origins_list,  # Orígenes permitidos
+    allow_credentials=True,  # Permitir cookies y headers de autenticación
+    allow_methods=["GET", "POST"],  # Métodos HTTP permitidos
+    allow_headers=["*"],  # Todos los headers permitidos
 )
 
-# Agregar middlewares personalizados
-app.add_middleware(RequestIDMiddleware)
-app.add_middleware(SecurityHeadersMiddleware)
+# Agregar middlewares personalizados para funcionalidad adicional
+app.add_middleware(RequestIDMiddleware)  # Agrega ID único a cada request
+app.add_middleware(SecurityHeadersMiddleware)  # Agrega headers de seguridad
 
-# Incluir routers
+# Incluir routers de endpoints con prefijo /v1
 app.include_router(
-    health.router,
+    health.router,  # Endpoint de health check
     prefix="/v1",
     tags=["health"]
 )
 
 app.include_router(
-    summarize.router,
+    summarize.router,  # Endpoint principal de summarización
     prefix="/v1",
     tags=["summarization"]
 )

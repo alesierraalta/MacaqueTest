@@ -3,14 +3,14 @@ Servicio Redis para caché de resúmenes y rate limiting.
 Implementa graceful degradation si Redis no está disponible.
 """
 
-import hashlib
-import json
-import asyncio
-from typing import Dict, Any, Optional
-import redis.asyncio as redis
-from redis.exceptions import ConnectionError, TimeoutError, RedisError
-from app.core.config import settings
-from app.core.logging import get_logger
+import hashlib  # Para generar hashes SHA-256 de claves de caché
+import json  # Para serializar/deserializar datos JSON
+import asyncio  # Para operaciones asíncronas
+from typing import Dict, Any, Optional  # Tipos de datos
+import redis.asyncio as redis  # Cliente asíncrono de Redis
+from redis.exceptions import ConnectionError, TimeoutError, RedisError  # Excepciones de Redis
+from app.core.config import settings  # Configuración de la aplicación
+from app.core.logging import get_logger  # Sistema de logging
 
 logger = get_logger(__name__)
 
@@ -20,10 +20,10 @@ class RedisService:
     
     def __init__(self):
         """Inicializa el cliente Redis."""
-        self._client: Optional[redis.Redis] = None
-        self._is_available: bool = False
+        self._client: Optional[redis.Redis] = None  # Cliente Redis asíncrono
+        self._is_available: bool = False  # Estado de disponibilidad de Redis
         
-        if settings.enable_redis:
+        if settings.enable_redis:  # Solo inicializar si Redis está habilitado
             self._initialize_client()
     
     def _initialize_client(self):

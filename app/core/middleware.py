@@ -3,12 +3,12 @@ Middleware personalizado para el microservicio.
 Incluye manejo de request_id y otros middlewares necesarios.
 """
 
-import uuid
-import time
-from typing import Callable
-from fastapi import Request, Response
-from starlette.middleware.base import BaseHTTPMiddleware
-from app.core.logging import get_logger
+import uuid  # Para generar IDs únicos
+import time  # Para medir latencia
+from typing import Callable  # Tipo de datos para funciones
+from fastapi import Request, Response  # Request y Response de FastAPI
+from starlette.middleware.base import BaseHTTPMiddleware  # Clase base para middlewares
+from app.core.logging import get_logger  # Sistema de logging
 
 logger = get_logger(__name__)
 

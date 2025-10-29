@@ -3,18 +3,18 @@ Módulo de seguridad para autenticación con API Key.
 Implementa verificación de API keys usando HTTPBearer.
 """
 
-from typing import List
-from fastapi import Security, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.core.config import settings
-from app.core.logging import get_logger
+from typing import List  # Tipo de datos para listas
+from fastapi import Security, HTTPException, status  # Seguridad y manejo de errores HTTP
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials  # Autenticación Bearer
+from app.core.config import settings  # Configuración de la aplicación
+from app.core.logging import get_logger  # Sistema de logging
 
 logger = get_logger(__name__)
 
-# Configurar HTTPBearer
+# Configurar HTTPBearer para autenticación con API Key
 security = HTTPBearer(
-    scheme_name="API Key",
-    description="API Key requerida para acceder a los endpoints"
+    scheme_name="API Key",  # Nombre del esquema de autenticación
+    description="API Key requerida para acceder a los endpoints"  # Descripción para OpenAPI
 )
 
 

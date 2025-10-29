@@ -3,20 +3,20 @@ Proveedor LLM usando OpenAI.
 Implementa integración con OpenAI API con retries y manejo de errores.
 """
 
-import asyncio
-from typing import Dict, Any, Optional
-from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletion
-from openai._exceptions import RateLimitError, APIError, APITimeoutError
-from tenacity import (
+import asyncio  # Para operaciones asíncronas
+from typing import Dict, Any, Optional  # Tipos de datos
+from openai import AsyncOpenAI  # Cliente asíncrono de OpenAI
+from openai.types.chat import ChatCompletion  # Tipo de respuesta de chat
+from openai._exceptions import RateLimitError, APIError, APITimeoutError  # Excepciones de OpenAI
+from tenacity import (  # Biblioteca para retries automáticos
     retry, 
     stop_after_attempt, 
     wait_exponential, 
     retry_if_exception_type,
     before_sleep_log
 )
-from app.core.config import settings
-from app.core.logging import get_logger
+from app.core.config import settings  # Configuración de la aplicación
+from app.core.logging import get_logger  # Sistema de logging
 
 logger = get_logger(__name__)
 
@@ -27,10 +27,10 @@ class OpenAIProvider:
     def __init__(self):
         """Inicializa el cliente OpenAI."""
         self.client = AsyncOpenAI(
-            api_key=settings.openai_api_key,
-            timeout=settings.llm_timeout_ms / 1000  # Convertir a segundos
+            api_key=settings.openai_api_key,  # API key de OpenAI
+            timeout=settings.llm_timeout_ms / 1000  # Convertir timeout a segundos
         )
-        self.model = settings.openai_model
+        self.model = settings.openai_model  # Modelo a utilizar
         
     def _build_system_prompt(self, lang: str, tone: str) -> str:
         """

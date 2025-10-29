@@ -3,8 +3,8 @@ Modelos Pydantic para requests y responses de la API.
 Define la estructura de datos para los endpoints del microservicio.
 """
 
-from typing import Dict, Optional
-from pydantic import BaseModel, Field, field_validator
+from typing import Dict, Optional  # Tipos de datos
+from pydantic import BaseModel, Field, field_validator  # Modelos y validación de datos
 
 
 class SummarizeRequest(BaseModel):

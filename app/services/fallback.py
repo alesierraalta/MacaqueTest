@@ -131,12 +131,18 @@ class ExtractiveFallback:
                 }
             )
             
+            # Calcular tokens aproximados para el fallback
+            # Aproximación: 1 token ≈ 4 caracteres en español/inglés
+            prompt_tokens = len(text) // 4
+            completion_tokens = len(summary) // 4
+            total_tokens = prompt_tokens + completion_tokens
+            
             return {
                 "summary": summary,
                 "usage": {
-                    "prompt_tokens": 0,
-                    "completion_tokens": 0,
-                    "total_tokens": 0
+                    "prompt_tokens": prompt_tokens,
+                    "completion_tokens": completion_tokens,
+                    "total_tokens": total_tokens
                 },
                 "model": "TextRank-extractive",
                 "method": "extractive",
@@ -153,12 +159,17 @@ class ExtractiveFallback:
             sentences = text.split('.')
             fallback_summary = '. '.join(sentences[:3]) + '.'
             
+            # Calcular tokens aproximados para el fallback simple
+            prompt_tokens = len(text) // 4
+            completion_tokens = len(fallback_summary) // 4
+            total_tokens = prompt_tokens + completion_tokens
+            
             return {
                 "summary": fallback_summary,
                 "usage": {
-                    "prompt_tokens": 0,
-                    "completion_tokens": 0,
-                    "total_tokens": 0
+                    "prompt_tokens": prompt_tokens,
+                    "completion_tokens": completion_tokens,
+                    "total_tokens": total_tokens
                 },
                 "model": "fallback-simple",
                 "method": "simple-extraction",

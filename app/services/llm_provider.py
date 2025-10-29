@@ -131,11 +131,23 @@ Responde únicamente con el resumen, sin explicaciones adicionales."""
             summary = response.output_text or ""
             
             # Intentar obtener tokens de uso de la respuesta
-            # Si no están disponibles, mantener en 0 (prioridad: latencia)
+            # Si no están disponibles, calcular aproximación
+            prompt_tokens = getattr(response, 'prompt_tokens', None)
+            completion_tokens = getattr(response, 'completion_tokens', None)
+            total_tokens = getattr(response, 'total_tokens', None)
+            
+            # Si no hay tokens reales, calcular aproximación
+            if prompt_tokens is None or completion_tokens is None or total_tokens is None:
+                # Aproximación: 1 token ≈ 4 caracteres en español/inglés
+                prompt_tokens = len(text) // 4
+                completion_tokens = len(summary) // 4
+                total_tokens = prompt_tokens + completion_tokens
+                logger.info("Usando aproximación de tokens (API no devolvió información de uso)")
+            
             usage = {
-                "prompt_tokens": getattr(response, 'prompt_tokens', 0),
-                "completion_tokens": getattr(response, 'completion_tokens', 0),
-                "total_tokens": getattr(response, 'total_tokens', 0)
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": total_tokens
             }
             
             # Validar que la respuesta tenga contenido válido

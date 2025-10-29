@@ -139,4 +139,3 @@ class TestSummarizeRequestValidation:
         assert request.lang == "auto"
         assert request.max_tokens == 100
         assert request.tone == "neutral"
-        assert request.fallback_used is False

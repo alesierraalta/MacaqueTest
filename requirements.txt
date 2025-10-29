@@ -31,3 +31,6 @@ httpx>=0.25.2
 
 # Utilidades adicionales
 python-dotenv>=1.0.0
+
+# Redis para caché y rate limiting
+redis==5.0.1

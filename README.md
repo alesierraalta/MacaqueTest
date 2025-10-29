@@ -67,7 +67,8 @@ curl -X POST "http://localhost:8000/v1/summarize" \
   },
   "model": "gpt-5-nano",
   "latency_ms": 1250,
-  "fallback_used": false
+  "fallback_used": false,
+  "cached": false
 }
 ```
 
@@ -85,7 +86,8 @@ curl http://localhost:8000/v1/healthz
   "latency_ms": 45,
   "checks": {
     "api": "ok",
-    "llm_provider": "ok"
+    "llm_provider": "ok",
+    "redis": "ok"
   }
 }
 ```
@@ -136,7 +138,18 @@ asyncio.run(summarize_text())
 | `MAX_RETRIES` | Máximo número de reintentos | `2` |
 | `MAX_TEXT_LENGTH` | Longitud máxima del texto | `50000` |
 | `LOG_LEVEL` | Nivel de logging | `INFO` |
+| `ENABLE_REDIS` | Habilitar Redis | `true` |
+| `REDIS_URL` | URL de conexión Redis | `redis://redis:6379/0` |
+| `CACHE_TTL_SECONDS` | TTL del caché en segundos | `3600` |
+| `RATE_LIMIT_REQUESTS` | Requests por minuto por API key | `100` |
 
+### Redis (Opcional)
+
+Redis mejora el rendimiento mediante caché y protege el servicio con rate limiting:
+
+- **Caché de resúmenes**: Reduce latencia en textos repetidos (TTL: 1 hora)
+- **Rate limiting**: 100 requests/minuto por API key
+- **Graceful degradation**: Servicio funciona si Redis falla
 
 ### Tonos de Resumen
 

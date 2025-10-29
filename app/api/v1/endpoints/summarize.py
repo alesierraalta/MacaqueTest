@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from app.models.requests import SummarizeRequest, SummarizeResponse
 from app.services.llm_provider import openai_provider
 from app.services.fallback import extractive_fallback
+from app.services.redis_service import redis_service
 from app.core.security import verify_api_key
 from app.core.logging import get_logger, log_summarization, log_error
 
@@ -44,6 +45,7 @@ async def summarize_text(
     start_time = time.perf_counter()
     request_id = getattr(http_request.state, 'request_id', None)
     fallback_used = False
+    cached = False
     
     try:
         logger.info(
@@ -57,7 +59,58 @@ async def summarize_text(
             }
         )
         
-        # Intentar generar resumen con OpenAI
+        # 1. Verificar rate limit
+        if not await redis_service.check_rate_limit(api_key):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Rate limit excedido. Máximo 100 requests por minuto."
+            )
+        
+        # 2. Generar clave de caché
+        cache_key = redis_service.generate_cache_key(
+            text=request.text,
+            lang=request.lang,
+            max_tokens=request.max_tokens,
+            tone=request.tone
+        )
+        
+        # 3. Intentar obtener de caché
+        cached_result = await redis_service.get_cached_summary(cache_key)
+        if cached_result:
+            logger.info(
+                f"Resumen obtenido del caché",
+                extra={
+                    'request_id': request_id,
+                    'cache_key': cache_key[:16] + '...',
+                    'cached': True
+                }
+            )
+            
+            # Calcular latencia (muy rápida para caché)
+            latency_ms = int((time.perf_counter() - start_time) * 1000)
+            
+            response = SummarizeResponse(
+                summary=cached_result['summary'],
+                usage=cached_result['usage'],
+                model=cached_result['model'],
+                latency_ms=latency_ms,
+                fallback_used=cached_result.get('fallback_used', False),
+                cached=True
+            )
+            
+            log_summarization(
+                logger=logger,
+                request_id=request_id,
+                latency_ms=latency_ms,
+                model_used=cached_result['model'],
+                tokens_used=cached_result['usage'],
+                fallback_used=cached_result.get('fallback_used', False),
+                cached=True
+            )
+            
+            return response
+        
+        # 4. Si no hay caché, generar con LLM
         try:
             result = await openai_provider.generate_summary(
                 text=request.text,
@@ -104,13 +157,24 @@ async def summarize_text(
         # Calcular latencia total
         latency_ms = int((time.perf_counter() - start_time) * 1000)
         
+        # 5. Guardar resultado en caché (si no es fallback)
+        if not fallback_used:
+            cache_data = {
+                'summary': result['summary'],
+                'usage': result['usage'],
+                'model': result['model'],
+                'fallback_used': fallback_used
+            }
+            await redis_service.set_cached_summary(cache_key, cache_data)
+        
         # Construir respuesta
         response = SummarizeResponse(
             summary=result['summary'],
             usage=result['usage'],
             model=result['model'],
             latency_ms=latency_ms,
-            fallback_used=fallback_used
+            fallback_used=fallback_used,
+            cached=False
         )
         
         # Loggear resumen exitoso
@@ -120,7 +184,8 @@ async def summarize_text(
             latency_ms=latency_ms,
             model_used=result['model'],
             tokens_used=result['usage'],
-            fallback_used=fallback_used
+            fallback_used=fallback_used,
+            cached=False
         )
         
         return response

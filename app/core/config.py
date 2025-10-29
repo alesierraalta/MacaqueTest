@@ -91,6 +91,28 @@ class Settings(BaseSettings):
         description="Nivel de logging"
     )
     
+    # Configuración de Redis (opcional)
+    enable_redis: bool = Field(
+        default=True,
+        description="Habilitar Redis para caché y rate limiting"
+    )
+    redis_url: str = Field(
+        default="redis://redis:6379/0",
+        description="URL de conexión a Redis"
+    )
+    cache_ttl_seconds: int = Field(
+        default=3600,
+        ge=60,
+        le=86400,
+        description="Tiempo de vida del caché en segundos"
+    )
+    rate_limit_requests: int = Field(
+        default=100,
+        ge=10,
+        le=1000,
+        description="Máximo de requests por minuto por API key"
+    )
+    
     @field_validator('api_keys_allowed')
     @classmethod
     def validate_api_keys(cls, v: str) -> str:

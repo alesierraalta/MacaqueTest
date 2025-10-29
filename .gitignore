@@ -128,7 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# IDEs
+# IDE
 .vscode/
 .idea/
 *.swp
@@ -137,11 +137,15 @@ dmypy.json
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Docker
 .dockerignore
 
-# Logs
-logs/
-*.log
+# Redis data
+dump.rdb

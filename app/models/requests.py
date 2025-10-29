@@ -91,6 +91,10 @@ class SummarizeResponse(BaseModel):
         default=False, 
         description="Indica si se usó el método de fallback"
     )
+    cached: bool = Field(
+        default=False,
+        description="Indica si el resultado proviene del caché"
+    )
     
     model_config = {
         "json_schema_extra": {
@@ -100,9 +104,10 @@ class SummarizeResponse(BaseModel):
                     "prompt_tokens": 120,
                     "completion_tokens": 40
                 },
-                "model": "gpt-4o-mini",
+                "model": "gpt-5-nano",
                 "latency_ms": 1250,
-                "fallback_used": False
+                "fallback_used": False,
+                "cached": False
             }
         }
     }

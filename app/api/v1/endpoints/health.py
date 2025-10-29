@@ -8,6 +8,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends
 from app.models.requests import HealthResponse
 from app.services.llm_provider import openai_provider
+from app.services.redis_service import redis_service
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -39,7 +40,17 @@ async def health_check() -> HealthResponse:
         logger.warning(f"Error verificando OpenAI: {e}")
         openai_status = "error"
     
-    # Determinar estado general
+    # Verificar conectividad con Redis (opcional)
+    redis_status = "ok"
+    try:
+        is_redis_available = await redis_service.is_available()
+        if not is_redis_available:
+            redis_status = "unavailable"
+    except Exception as e:
+        logger.warning(f"Error verificando Redis: {e}")
+        redis_status = "unavailable"
+    
+    # Determinar estado general (Redis no afecta el status general)
     if openai_status == "ok":
         status = "ok"
     else:
@@ -55,7 +66,8 @@ async def health_check() -> HealthResponse:
         latency_ms=latency_ms,
         checks={
             "api": "ok",
-            "llm_provider": openai_status
+            "llm_provider": openai_status,
+            "redis": redis_status
         }
     )
     
@@ -64,7 +76,8 @@ async def health_check() -> HealthResponse:
         extra={
             'status': status,
             'latency_ms': latency_ms,
-            'openai_status': openai_status
+            'openai_status': openai_status,
+            'redis_status': redis_status
         }
     )
     

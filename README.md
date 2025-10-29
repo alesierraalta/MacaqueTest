@@ -181,8 +181,10 @@ curl -X POST "http://localhost:8000/v1/summarize" \
 
 ### Ejemplo 4: Probar Caché de Redis
 
+**Nota:** El caché se activa automáticamente cuando los parámetros (`text`, `lang`, `max_tokens`, `tone`) son idénticos. No necesitas hacer nada especial para usar el caché.
+
 ```bash
-# Primera request (genera y cachea)
+# Primera request (genera y cachea el resultado)
 curl -X POST "http://localhost:8000/v1/summarize" \
   -H "Authorization: Bearer tu-api-key-123" \
   -H "Content-Type: application/json" \
@@ -211,7 +213,7 @@ curl -X POST "http://localhost:8000/v1/summarize" \
 ```
 
 ```bash
-# Segunda request (mismo texto - usa caché)
+# Segunda request (mismos parámetros - el caché se activa automáticamente)
 curl -X POST "http://localhost:8000/v1/summarize" \
   -H "Authorization: Bearer tu-api-key-123" \
   -H "Content-Type: application/json" \
@@ -223,7 +225,7 @@ curl -X POST "http://localhost:8000/v1/summarize" \
   }'
 ```
 
-**Respuesta esperada (segunda request):**
+**Respuesta esperada (segunda request - desde caché):**
 ```json
 {
   "summary": "Texto de prueba para verificar el caché de Redis",
@@ -238,6 +240,8 @@ curl -X POST "http://localhost:8000/v1/summarize" \
   "cached": true
 }
 ```
+
+**Observación:** Nota que `"cached": true` y `"latency_ms": 0` en la segunda respuesta, indicando que el resultado viene del caché de Redis.
 
 ## 🐍 Ejemplo con Python
 

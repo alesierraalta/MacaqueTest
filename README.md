@@ -6,6 +6,69 @@ Un microservicio backend que recibe texto y devuelve resúmenes generados por Op
 
 Diseñar un microservicio backend que reciba texto y devuelva un resumen generado por un modelo de lenguaje (LLM), priorizando latencia y confiabilidad.
 
+## 🏗️ Decisiones Técnicas y Cumplimiento de Objetivos
+
+### Priorización de Latencia
+
+**Decisiones implementadas:**
+- **FastAPI**: Framework asíncrono con soporte nativo para async/await
+- **Timeouts configurables**: 8s para LLM, 10s para cliente (evita bloqueos prolongados)
+- **Fallback inmediato**: TextRank se activa automáticamente si OpenAI falla
+- **Caché Redis**: Respuestas idénticas se sirven desde caché (latencia reducida)
+- **Cálculo de tokens optimizado**: Aproximación matemática en lugar de llamadas adicionales
+- **Middleware minimalista**: Solo RequestID y headers de seguridad
+
+### Priorización de Confiabilidad
+
+**Decisiones implementadas:**
+- **Arquitectura de fallback**: 3 niveles de resiliencia
+  1. OpenAI GPT-5 nano (principal)
+  2. TextRank extractivo (fallback automático)
+  3. Extracción simple de oraciones (fallback final)
+- **Retry automático**: Hasta 2 reintentos en errores 429/5xx con backoff exponencial
+- **Graceful degradation**: Servicio funciona sin Redis, sin OpenAI
+- **Validación robusta**: Pydantic valida entrada, sanitiza texto, valida idiomas
+- **Logging estructurado**: JSON logs para debugging y monitoreo
+- **Health checks**: Endpoint `/healthz` verifica estado de todos los componentes
+
+### Arquitectura de Escalabilidad
+
+**Decisiones implementadas:**
+- **Stateless design**: Cada request es independiente, escalable horizontalmente
+- **Redis opcional**: Caché distribuido para múltiples instancias
+- **Rate limiting**: 100 requests/minuto por API key (evita sobrecarga)
+- **Docker containerization**: Despliegue consistente y escalable
+- **12-factor app**: Configuración via variables de entorno
+
+### Seguridad y Robustez
+
+**Decisiones implementadas:**
+- **API Key obligatoria**: Autenticación simple pero efectiva
+- **Validación de entrada**: Sanitización y límites de tamaño (50k chars)
+- **Headers de seguridad**: CORS configurable, Request ID para trazabilidad
+- **Logs sin datos sensibles**: No se registra contenido del texto
+- **Timeouts configurables**: Previene ataques de denegación de servicio
+
+### Optimizaciones de Rendimiento
+
+**Decisiones implementadas:**
+- **Async/await**: No bloquea el event loop durante I/O
+- **Connection pooling**: Reutilización de conexiones HTTP
+- **Caché inteligente**: Clave basada en hash SHA-256 de parámetros
+- **Cálculo de tokens eficiente**: División simple (chars/4) vs tokenización compleja
+- **Middleware optimizado**: Solo funcionalidades esenciales
+
+### Monitoreo y Observabilidad
+
+**Decisiones implementadas:**
+- **Request ID único**: Trazabilidad completa de requests
+- **Logs estructurados**: JSON con metadata rica para análisis
+- **Métricas de latencia**: Tiempo de respuesta en cada respuesta
+- **Health checks detallados**: Estado de API, LLM, Redis por separado
+- **Error tracking**: Logging específico por tipo de error
+
+Esta arquitectura garantiza que el microservicio cumple los objetivos de **latencia** (respuestas rápidas con fallback) y **confiabilidad** (funcionamiento continuo incluso con fallos de dependencias externas).
+
 ## 📋 Requisitos Funcionales
 
 ### POST /v1/summarize

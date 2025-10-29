@@ -1,14 +1,32 @@
-# Configuración temporal para testing
-# Copia este contenido a un archivo .env
+# Template de variables de entorno
+# Copia este archivo a .env y configura con tus valores reales
+# Para más detalles, consulta el README.md
 
+# API Keys permitidas (separadas por coma)
 API_KEYS_ALLOWED=test-key-123,test-key-456
+
+# API Key de OpenAI (requerida)
 OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# Modelo de OpenAI
 OPENAI_MODEL=gpt-5-nano
+
+# Configuración de summarización
 SUMMARY_MAX_TOKENS=500
 LANG_DEFAULT=auto
 MAX_TEXT_LENGTH=50000
+
+# Timeouts y retries
 REQUEST_TIMEOUT_MS=10000
 LLM_TIMEOUT_MS=8000
 MAX_RETRIES=2
+
+# Configuración general
 CORS_ORIGINS=*
 LOG_LEVEL=INFO
+
+# Configuración Redis (opcional)
+ENABLE_REDIS=true
+REDIS_URL=redis://redis:6379/0
+CACHE_TTL_SECONDS=3600
+RATE_LIMIT_REQUESTS=100

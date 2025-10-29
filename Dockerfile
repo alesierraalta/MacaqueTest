@@ -21,20 +21,25 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Crear usuario no-root para seguridad
+RUN useradd --create-home --shell /bin/bash app
+
 WORKDIR /app
 
-# Copiar dependencias instaladas desde builder
-COPY --from=builder /root/.local /root/.local
+# Copiar dependencias instaladas desde builder al directorio del usuario app
+COPY --from=builder /root/.local /home/app/.local
 
 # Copiar código de la aplicación
 COPY ./app ./app
 
-# Configurar PATH para usar dependencias instaladas
-ENV PATH=/root/.local/bin:$PATH
+# Cambiar ownership de los archivos al usuario app
+RUN chown -R app:app /app /home/app/.local
 
-# Crear usuario no-root para seguridad
-RUN useradd --create-home --shell /bin/bash app
+# Cambiar al usuario app
 USER app
+
+# Configurar PATH para usar dependencias instaladas
+ENV PATH=/home/app/.local/bin:$PATH
 
 # Exponer puerto
 EXPOSE 8000

@@ -127,19 +127,27 @@ Responde únicamente con el resumen, sin explicaciones adicionales."""
                 }
             )
             
-            # Llamar a OpenAI API usando responses.create
+            # Llamar a OpenAI API usando responses.create con instructions
             response = await self.client.responses.create(
                 model=self.model,
+                instructions=system_prompt,  # Agregar system prompt como instructions
                 input=text
             )
             
             # Extraer información de la respuesta
             summary = response.output_text or ""
+            
+            # Intentar obtener tokens de uso de la respuesta
+            # Si no están disponibles, mantener en 0 (prioridad: latencia)
             usage = {
                 "prompt_tokens": getattr(response, 'prompt_tokens', 0),
                 "completion_tokens": getattr(response, 'completion_tokens', 0),
                 "total_tokens": getattr(response, 'total_tokens', 0)
             }
+            
+            # Validar que la respuesta tenga contenido válido
+            if not summary or len(summary.strip()) < 10:
+                raise APIError("Respuesta vacía o inválida del LLM")
             
             logger.info(
                 f"Resumen generado exitosamente con OpenAI",
@@ -195,6 +203,7 @@ Responde únicamente con el resumen, sin explicaciones adicionales."""
             # Llamada simple para probar conectividad usando responses.create
             response = await self.client.responses.create(
                 model=self.model,
+                instructions="You are a helpful assistant.",  # Agregar instructions
                 input="test"
             )
             return True

@@ -44,7 +44,7 @@ Revisión del estado del servicio y conectividad al LLM. Redis opcional.
 ### Paso 1: Clonar el Repositorio
 
 ```bash
-git clone <tu-repositorio>
+git clone  https://github.com/alesierraalta/MacaqueTest.git
 cd MacaqueTest
 ```
 
